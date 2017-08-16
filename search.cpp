@@ -64,7 +64,8 @@ int main(int, char**)
 		numLabels = connectedComponentsWithStats(bin1, labels, stats, centroids, 8, CV_32S);
 
 
-		HoughLinesP(canny, lines, 1, CV_PI/180, 40, 20, 20);
+		//HoughLinesP(canny, lines, 1, CV_PI/180, 40, 20, 20);
+		HoughLinesP(canny, lines, 1, CV_PI/180, 30, 20, 20);
 
 		for(int i=0; i<numLabels; i++) {
 			int left = stats.at<int>(i, CC_STAT_LEFT);
