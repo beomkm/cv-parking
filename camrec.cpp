@@ -9,7 +9,7 @@ using namespace std;
 int main(int, char**)  
 {  
 
-	VideoCapture capture(0);  
+	VideoCapture capture(1);  
 	if (!capture.isOpened()) {  
 		cout << "Cannot open devices" << endl;
 		return 1;
