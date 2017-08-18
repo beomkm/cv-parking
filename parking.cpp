@@ -16,7 +16,6 @@ const int ROI_HEIGHT = 380;
 
 
 
-
 int main(int, char**)  
 {  
 
@@ -46,6 +45,9 @@ int main(int, char**)
 
 	Mat labels, stats, centroids;
 	int numLabels;
+
+	int state = 0;
+	int stateCnt = 0;
 
 	vector<Vec4i> lines;
 
@@ -91,8 +93,8 @@ int main(int, char**)
 		}
 
 
-
-		for(int i=0; i<numLabels; i++) {
+		int numRect = 0;
+		for(int i=1; i<numLabels; i++) {
 			int area = stats.at<int>(i, CC_STAT_AREA);
 			int left = stats.at<int>(i, CC_STAT_LEFT);
 			int top = stats.at<int>(i, CC_STAT_TOP);
@@ -103,13 +105,38 @@ int main(int, char**)
 				rectangle(roi, Point(left, top), Point(left+width, top+height), Scalar(0, 255, 0), 1);
 			}
 
+			if(height<50 && top>40) {
+				++numRect;
+			}
 		}
+		printf("%d\n", numRect);
+
+		
 		
 
 		for(int i=0; i<lines.size(); i++) {
 			Vec4i lv = lines[i];
-			if(norm(Mat(Point(lv[0], lv[1])),Mat(Point(lv[2], lv[3]))) < 200)
-			line(roi, Point(lv[0], lv[1]), Point(lv[2], lv[3]), Scalar(0, 255, 255), 1, CV_AA);
+			float dist = norm(Mat(Point(lv[0], lv[1])), Mat(Point(lv[2], lv[3])));
+			int near = 0;
+			for(int j=1; j<numLabels; j++) {
+				int left = stats.at<int>(j, CC_STAT_LEFT);
+				int top = stats.at<int>(j, CC_STAT_TOP);
+				int width = stats.at<int>(j, CC_STAT_WIDTH);
+				int height = stats.at<int>(j, CC_STAT_HEIGHT);
+				int px = left + width/2;
+				int py = top + height/2;
+				float rho = (float)((px-lv[0])*(lv[3]-lv[1]) - (py-lv[1])*(lv[4]-lv[2]))/dist;
+				if(rho<400 && rho>-400) {
+					near += 1;
+				}
+
+			}
+			if(near > 5)
+				line(roi, Point(lv[0], lv[1]), Point(lv[2], lv[3]), Scalar(0, 0, 255), 1, CV_AA);
+			else
+				line(roi, Point(lv[0], lv[1]), Point(lv[2], lv[3]), Scalar(0, 255, 255), 1, CV_AA);
+					
+				
 
 						
 
