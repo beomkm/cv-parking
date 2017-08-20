@@ -1,12 +1,12 @@
-#include "opencv2/opencv.hpp"  
-#include <iostream>  
+#include "opencv2/opencv.hpp"
+#include <iostream>
 #include <cmath>
 #include <unistd.h>
-  
 
-using namespace cv;  
-using namespace std;  
-  
+
+using namespace cv;
+using namespace std;
+
 const int WIDTH = 640;
 const int HEIGHT = 480;
 const int ROI_X = 320;
@@ -16,24 +16,24 @@ const int ROI_HEIGHT = 380;
 
 
 
-int main(int, char**)  
-{  
+int main(int, char**)
+{
 
-	VideoCapture capture("new_secondobst.avi");  
-	if (!capture.isOpened()) {  
+	VideoCapture capture("new_secondobst.avi");
+	if (!capture.isOpened()) {
 		cout << "Cannot open devices" << endl;
 		return 1;
-	}  
+	}
 
 
-	capture.set(CAP_PROP_FRAME_WIDTH, WIDTH);  
-	capture.set(CAP_PROP_FRAME_HEIGHT, HEIGHT);  
+	capture.set(CAP_PROP_FRAME_WIDTH, WIDTH);
+	capture.set(CAP_PROP_FRAME_HEIGHT, HEIGHT);
 
-	Mat frame;  
+	Mat frame;
 
-	namedWindow("input", WINDOW_NORMAL);  
-	namedWindow("output1", WINDOW_NORMAL);  
-	namedWindow("output2", WINDOW_NORMAL);  
+	namedWindow("input", WINDOW_NORMAL);
+	namedWindow("output1", WINDOW_NORMAL);
+	namedWindow("output2", WINDOW_NORMAL);
 	resizeWindow("input", ROI_WIDTH, ROI_HEIGHT);
 	resizeWindow("output1", ROI_WIDTH, ROI_HEIGHT);
 	resizeWindow("output2", ROI_WIDTH, ROI_HEIGHT);
@@ -51,14 +51,14 @@ int main(int, char**)
 
 	vector<Vec4i> lines;
 
-	while(1) {  
+	while(1) {
 
-		capture >> frame;  
+		capture >> frame;
 		if(frame.empty()) {
 			break;
 		}
 
-		
+
 		Rect roi_rect = Rect(320, 100, 320, 380);
 		Mat roi = frame(roi_rect);
 
@@ -69,14 +69,14 @@ int main(int, char**)
 
 		//threshold(gray, bin, 84, 255, THRESH_BINARY);
 
-		
+
 		Mat element5(5, 5, CV_8U, Scalar(1));
 		morphologyEx(bin1, bin1,  MORPH_OPEN, element5);
 		morphologyEx(bin2, bin2,  MORPH_CLOSE, element5);
 
 		Canny(bin2, canny, 125, 250);
 
-	
+
 		numLabels = connectedComponentsWithStats(bin1, labels, stats, centroids, 8, CV_32S);
 
 
@@ -87,8 +87,8 @@ int main(int, char**)
 		for(int i=0; i<ROI_WIDTH; i+=50) {
 			line(roi, Point(i, 0), Point(i, ROI_HEIGHT), Scalar(255, 255, 0), 1);
 		}
-		
-		for(int i=0; i<ROI_HEIGHT; i+=50) { 
+
+		for(int i=0; i<ROI_HEIGHT; i+=50) {
 			line(roi, Point(0, i), Point(ROI_WIDTH, i), Scalar(255, 255, 0), 1);
 		}
 
@@ -111,8 +111,8 @@ int main(int, char**)
 		}
 		printf("%d\n", numRect);
 
-		
-		
+
+
 
 		for(int i=0; i<lines.size(); i++) {
 			Vec4i lv = lines[i];
@@ -135,25 +135,24 @@ int main(int, char**)
 				line(roi, Point(lv[0], lv[1]), Point(lv[2], lv[3]), Scalar(0, 0, 255), 1, CV_AA);
 			else
 				line(roi, Point(lv[0], lv[1]), Point(lv[2], lv[3]), Scalar(0, 255, 255), 1, CV_AA);
-					
-				
 
-						
+
+
+
 
 		}
 
 
-	
-		imshow("input", roi);  
-		imshow("output1", bin1);  
-		imshow("output2", canny);  
+
+		//imshow("input", roi);
+		//imshow("output1", bin1);
+		//imshow("output2", canny);  
 
 		if (waitKey(60000) == 'n') continue;
 
-	}  
+	}
 
 
 
-	return 0;  
-}  
-
+	return 0;
+}
