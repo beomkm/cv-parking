@@ -41,7 +41,7 @@ int numLabels2;
 
 int state = 0;
 int stateCnt = 0;
-int output = 0;
+int actNo = 0;
 
 
 std::vector<Vec4i> lines;
@@ -153,7 +153,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
   switch(state) {
     case 0:
-      output = 1;
+      actNo = 1;
       if(numRect == 3) {
         ++stateCnt;
       }
@@ -167,7 +167,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
       break;
     case 1:
-      output = 4;
+      actNo = 4;
       ++stateCnt;
       if(stateCnt > 76) {
         stateCnt = 0;
@@ -175,7 +175,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 2:
-      output = 0;
+      actNo = 0;
       if(numStop > 0) {
         ++stateCnt;
       }
@@ -192,7 +192,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 3:
-      output = 1;
+      actNo = 1;
       if(numStop == 0) {
         ++stateCnt;
       }
@@ -205,7 +205,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 4:
-      output = 0;
+      actNo = 0;
       ++stateCnt;
       if(stateCnt >= 20) {
         stateCnt = 0;
@@ -213,7 +213,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 5:
-      output = 2;
+      actNo = 2;
       if(numStop == 1 && numStopY>180 && numStopY<250) {
         ++stateCnt;
       }
@@ -226,7 +226,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 6:
-      output = 3;
+      actNo = 3;
       ++stateCnt;
       if(stateCnt > 76) {
         stateCnt = 0;
@@ -234,10 +234,10 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 7:
-      output = 1;
+      actNo = 1;
       break;
     case 8:
-      output = 3;
+      actNo = 3;
       ++stateCnt;
       if(stateCnt > 76) {
         stateCnt = 0;
@@ -245,7 +245,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 9:
-      output = 1;
+      actNo = 1;
       if(numRect == 0) {
         ++stateCnt;
       }
@@ -258,7 +258,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     case 10:
-      output = 4;
+      actNo = 4;
       ++stateCnt;
       if(stateCnt > 76) {
         stateCnt = 0;
@@ -266,7 +266,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
       }
       break;
     default:
-      output = 0;
+      actNo = 0;
   }
 
 
@@ -293,8 +293,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
   /*------------------------------------------*/
 
   sherlotics::PARKINGtoPID send_msg;
-  //output = 0;
-  send_msg.data = output;
+
+  send_msg.data = actToOutput(actNo);
   //ROS_INFO("send msg = %d", 1);
   pub.publish(send_msg);
 
@@ -315,4 +315,30 @@ int main(int argc, char **argv)
   ros::spin();
 
   return 0;
+}
+
+void actToOutput(int act, float *output)
+{
+  switch(act) {
+    case 0:
+      output[0] = 0.0f;
+      output[1] = 0.0f;
+      break;
+    case 1:
+      output[0] = 0.03f;
+      output[1] = 0.0f;
+      break;
+    case 2:
+      output[0] = 0.03f;
+      output[1] = 0.0f;
+      break;
+    case 3:
+      output[0] = 0.0f;
+      output[1] = 0.1f;
+      break;
+    case 4:
+      output[0] = 0.0f;
+      output[1] = -0.1f;
+      break;
+  }
 }
